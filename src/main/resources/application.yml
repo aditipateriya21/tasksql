@@ -1,0 +1,67 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tasks_db
+    username: postgres
+    password: test
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update  # Automatically update/create schema based on your entities
+    show-sql: true      # Optional: prints SQL statements for debugging
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    properties:
+      acks: 1
+      # security.protocol: SASL_SSL
+      # sasl.mechanism: AWS_MSK_IAM
+      # sasl.jaas.config: software.amazon.msk.auth.iam.IAMLoginModule required;
+      # sasl.client.callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+#        interceptor.classes: "com.nextuple.platform.kafka.interceptor.KafkaProducerContextInterceptor"
+        kafkaHeaders: x-tenant-identifier,x-global-transaction-id,eventtype
+    consumer:
+      enable-auto-commit: true
+      auto-offset-reset: latest
+      max-poll-records: 50
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "*"
+#        interceptor.classes: "com.nextuple.platform.kafka.interceptor.KafkaConsumerContextInterceptor"
+        correlationIdentifierName: x-global-transaction-id
+        kafkaPayload: true
+        enable-idempotency: false
+        idempotent-topics: bjs_dis_demand_line_updated,bjs_dis_supply_line_updated
+        allHeaders: x-tenant-identifier,x-global-transaction-id,authorization,x-user-id,x-token-type,eventtype
+
+
+platform:
+  groupIdPrefix: test-task
+  tasks:
+    enabled: true
+    nearcache : true
+  tasks-scheduler:
+    enabled: true
+    milliseconds: 300000
+
+
+next-cache:
+  refresh-cache:
+    topic: bjs_dis_inventory_refresh_cache
+  cacheManager: caffeine
+  caches:
+    - cacheName: task-info
+      ttlSeconds: 14400
+      maxLimit: 50
+kafka:
+  input:
+    taskTopics: bjs_dis_inventory_retry_topic
+    taskGroupId: "dis-inventory"

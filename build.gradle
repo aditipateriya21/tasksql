@@ -1,0 +1,52 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.nextuple'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation "com.nextuple.platform:tasks-sql:2.3.0-SNAPSHOT"
+	implementation "com.nextuple.platform:tasks:2.3.0-SNAPSHOT"
+	implementation "com.nextuple.platform:sql:2.3.0-SNAPSHOT"
+	implementation "com.nextuple.platform:common:2.3.0-SNAPSHOT"
+	implementation "com.nextuple.platform:kafka:2.3.0-SNAPSHOT"
+	implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '3.3.0'
+	implementation "com.nextuple.platform:next-cache:2.3.0-SNAPSHOT"
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: '3.4.0'
+	implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.8'
+	implementation "org.springframework.boot:spring-boot-starter-validation:3.3.3"
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.0' // or latest stable version
+
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
